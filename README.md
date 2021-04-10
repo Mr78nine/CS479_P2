@@ -1,3 +1,20 @@
+
+# UNR CS 479 Programming Assignment 2
+
+## Build instructions
+
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
+
+## Run
+
+```bash
+./main
+```
+
 # UNR CS 479 Programming Assignment 1
 
 ## Building the assignment
