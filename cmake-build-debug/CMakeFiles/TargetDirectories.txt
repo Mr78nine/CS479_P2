@@ -1,3 +1,6 @@
 /mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
 /mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/CMakeFiles/main.dir
 /mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/CMakeFiles/common.dir
+/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/CMakeFiles/edit_cache.dir

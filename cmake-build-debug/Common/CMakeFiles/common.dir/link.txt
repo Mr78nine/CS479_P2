@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcommon.a  CMakeFiles/common.dir/image.cpp.o CMakeFiles/common.dir/sample.cpp.o CMakeFiles/common.dir/ReadImage.cpp.o
+/usr/bin/ranlib libcommon.a

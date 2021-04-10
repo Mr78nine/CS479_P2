@@ -1,8 +1,8 @@
 #pragma once
 #include <omp.h>
 
-#include <Eigen/Dense>
-#include <Eigen/StdVector>
+#include "../Eigen/Dense"
+#include "../Eigen/StdVector"
 #include <iomanip>
 #include <random>
 

@@ -5,7 +5,7 @@
 		<Option title="Exp3_a"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\Common\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug"/>
@@ -29,7 +29,7 @@
 			</Target>
 			<Target title="main">
 				<Option output="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/main" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug"/>
+				<Option working_dir=""/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -52,7 +52,7 @@
 			</Target>
 			<Target title="main/fast">
 				<Option output="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/main" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug"/>
+				<Option working_dir=""/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -83,7 +83,71 @@
 					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="common">
+				<Option output="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/libcommon.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 common"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="common/fast">
+				<Option output="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/libcommon.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 common/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/meman/CLionProjects/p2/cmake-build-debug/Common/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 		</Build>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/ReadImage.cpp">
+			<Option target="common"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/gauss.h">
+			<Option target="common"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/image.cpp">
+			<Option target="common"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/image.h">
+			<Option target="common"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/sample.cpp">
+			<Option target="common"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/sample.h">
+			<Option target="common"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Experiment3/main.cpp">
 			<Option target="main"/>
 		</Unit>
@@ -92,6 +156,9 @@
 		</Unit>
 		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/meman/CLionProjects/p2/Common/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Common\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>

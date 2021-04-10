@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/meman/CLionProjects/p2/Common/ReadImage.cpp
+iostream
+-
+fstream
+-
+stdlib.h
+-
+stdio.h
+-
+image.h
+/mnt/c/Users/meman/CLionProjects/p2/Common/image.h
+
+/mnt/c/Users/meman/CLionProjects/p2/Common/image.h
+iostream
+-
+
