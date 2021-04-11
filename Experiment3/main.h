@@ -5,6 +5,7 @@
 #include "../Eigen/StdVector"
 #include "../Eigen/Core"
 #include <cmath>
+#include <tuple>
 
 // OpenCV
 #include <opencv2/opencv.hpp>
@@ -32,12 +33,12 @@ typedef struct ChrColors {
             g = G / (R + G + B);
         }
     }
-}chrColors;
+}ChrColors;
 
 typedef struct GaussainParams{
     float r_bar;
     float g_bar;
-
+    float c; //Normalizing constant
     Eigen::Matrix2d covMatrix;
 
     GaussainParams(const std::vector<ChrColors> & colors ) {
@@ -72,17 +73,23 @@ typedef struct GaussainParams{
         covMatrix(1,0) = covgr;
         covMatrix(1,1) = covgg;
 
+        //Initialize c
+        auto det = covMatrix.determinant();
+        c = 1 / (2*M_PI* sqrt(det));
+
     }
 }GaussianParams;
 
 
 std::vector<bool> classify(const char* trainDir, const char* testDir, float threshold, const char* fileName);
 bool isFace(ChrColors pixel, const GaussianParams &g, float threshold);
-float get_best_threshold(const char* trainDir, const char* testDir, float threshBot = 0, float threshTop = 3, float threshSteps=0.1, const char* fileName = "threshold_vs_accuracy");
-std::vector<bool> classify(const char* trainDir, const char* testDir, float threshold, const char* fileName = "threshold_vs_accuracy");
-float get_accuracy(std::vector<bool> classifications,  std::vector<bool> labels);
-std::vector<bool> get_labels(const char* imgDir);
 
+float try_different_thresholds(const char* trainDir, const char* testDir, GaussianParams g, float threshBot = 0, float threshTop = 3, float threshSteps=0.1, const char* fileName = "threshold_vs_accuracy");
+std::vector<bool> classify(const char* trainDir, const char* testDir,  GaussianParams g,float threshold, const char* fileName = "threshold_vs_accuracy");
+float get_accuracy(std::vector<bool> classifications,  std::vector<bool> labels);
+std::pair<long,long> get_fp_fn(std::vector<bool> classifications, std::vector<bool> labels);
+std::vector<bool> get_labels(const char* imgDir);
+GaussianParams get_gaussian(std::vector<ChrColors> testPixels, std::vector<bool> labels) ;
 /**
  * @brief Get a row major vector of bgr pixel values of an image
  * 
@@ -135,46 +142,47 @@ bool isFace(ChrColors pixel, const GaussianParams &g, float threshold)
  *          called "threshold_performances.txt". Format of file is:
  *          Threshold_Value  Accuracy
  */
-float get_best_threshold(const char* trainDir, const char* testDir, float threshBot, float threshTop, float threshSteps, const char* fileName)
+float try_different_thresholds(const char* trainDir, const char* testDir, GaussianParams g, float threshBot, float threshTop, float threshSteps, const char* fileName)
 {   //Open file
     std::ofstream file;
     char sname[80] = {'\0'};
     sprintf(sname, "%s_%d" , fileName, rand());
     file.open(sname, std::ios::trunc);
     file << trainDir << testDir << std::endl;
+    file << "Treshold" << "" << "FP" << " " << "FN" << " " << "Accuracy" << std::endl;
 
     //Start with an initial guess of threshold
     float threshold = threshBot;
     float bestThreshold = threshold;
-    float accuracy = 0.0f;
-
-    //Get image vectors
-
-
+    long fp = LONG_MAX, fn = LONG_MAX;
+    //Get image vector
 
     for (threshold; threshold < threshTop; threshold += threshSteps)
     {
-        std::vector<bool> classifications = classify(trainDir, testDir, threshold);
+        std::cout << "Trying threshold " << threshold << "\n";
+        std::vector<bool> classifications = classify(trainDir, testDir,g,threshold);
         std::vector<bool> labels = get_labels(testDir);
 
-        //Check if accuracy is better than previous accuracy
-        float newAccuracy = get_accuracy(classifications, labels);
+        //Get fp and fn values
+        std::pair<long,long> fpfn = get_fp_fn(classifications, labels);
+        long newfp = std::get<0>(fpfn);
+        long newfn = std::get<1>(fpfn);
 
-        if (newAccuracy > accuracy )
-        {
-            accuracy = newAccuracy;
-            bestThreshold = threshold;
-        }
+        if (newfp < fp) fp = newfp;
+        if (newfn < fn) fn = newfn;
 
-        //Record threshold/accuracy
-        file << threshold << " " << newAccuracy << std::endl;
+        //Get overall accuracy
+        float accuracy = (float(labels.size()) -float(newfp + newfn))/float(labels.size());
+
+        //Record threshold roc/accuracy
+        file << threshold << " " << newfp << " " << newfn << " " << accuracy << std::endl;
 
     }
 
 return bestThreshold;
 }
 
-std::vector<bool> classify(const char* trainDir, const char* testDir, float threshold, const char* fileName) {
+std::vector<bool> classify(const char* trainDir, const char* testDir,  GaussianParams g,float threshold, const char* fileName){
     //Get image vectors
     cv::Mat train_image = cv::imread(trainDir);
     cv::Mat test_image = cv::imread(testDir);
@@ -186,25 +194,16 @@ std::vector<bool> classify(const char* trainDir, const char* testDir, float thre
     std::vector<bool> labels;
 
     //Get correct labels first
-    for (auto &pixel : trainPixels) {
-        if (pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0) //Black means no face
-        {
-            labels.emplace_back(false);
-        } else {
-            labels.emplace_back(true);
-        }
-    }
+    labels = get_labels(testDir);
 
     //Perform classification
-    //First, transform into the chromatic color space
+    //First, transform our training pixels into the chromatic color space
     std::vector<ChrColors> trainChromatic; //RGB order
     for (auto &pixel : trainPixels) {
         ChrColors chrom(pixel[2], pixel[1], pixel[0]);
         trainChromatic.emplace_back(chrom);
     }
 
-    //Now, create our gaussian
-    GaussianParams g(trainChromatic);
 
     //Use gaussian with threshold to classify
     for (auto &pixel : trainChromatic) {
@@ -227,6 +226,25 @@ float get_accuracy(std::vector<bool> classifications,  std::vector<bool> labels)
 
 }
 
+std::pair<long,long> get_fp_fn(std::vector<bool> classifications, std::vector<bool> labels)
+{
+    long fp = 0, fn = 0;
+
+    float sampleNum = labels.size();
+    for (long i = 0; i < sampleNum; i++)
+    {
+        bool c = classifications[i];
+        bool l = labels[i];
+
+        //If we're right, no fn/fp
+        if ( c == l) continue;
+        else if (c == true && l == false) fp += 1;
+        else if (c == false && l == true) fn += 1;
+    }
+
+    return std::make_pair(fp,fn);
+}
+
 std::vector<bool> get_labels(const char* imgDir)
 
 {   cv::Mat test_image = cv::imread(imgDir);
@@ -245,4 +263,20 @@ std::vector<bool> get_labels(const char* imgDir)
     }
 
     return labels;
+}
+
+GaussianParams get_gaussian(std::vector<ChrColors> testPixels, std::vector<bool> labels) {
+
+    //Only use face pixels for the gaussian
+    std::vector<ChrColors> faceChromatic;
+    for (int i = 0; i < testPixels.size(); i++) {
+        auto pixel = testPixels[i];
+        if (labels[i] == true) {
+            faceChromatic.emplace_back(pixel);
+        }
+    }
+
+    GaussianParams g(faceChromatic);
+    return g;
+
 }

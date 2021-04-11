@@ -5,8 +5,21 @@ int main(int argc, char **argv)
 {
   std::cout << "Experiment 3" << std::endl;
 
-  std::cout << "Best threshold: " << get_best_threshold(TRAIN_IMAGE1_PATH, TRAIN_REF1_PATH, 0 , 5);
+  //Get our gaussian
+  cv::Mat train1 = cv::imread(TRAIN_IMAGE1_PATH);
+  cv::Mat test1 = cv::imread(TEST_IMAGE1_PATH);
+  std::vector<bool> labels = get_labels(TEST_IMAGE1_PATH);
+  std::vector<ChrColors> testChromatic;
 
+  auto testPixels = GetPixelVector(test1);
+  for (auto &pixel : testPixels) {
+      ChrColors chrom(pixel[2], pixel[1], pixel[0]);
+      testChromatic.emplace_back(chrom);
+    }
+  GaussainParams g = get_gaussian(testChromatic, labels);
+\
+
+  try_different_thresholds(TRAIN_IMAGE1_PATH, TEST_IMAGE1_PATH,g,0,3, 3/20 );
   return 0;
 }
 
