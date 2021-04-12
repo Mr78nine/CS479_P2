@@ -236,7 +236,7 @@ float GetBestThreshold(const std::vector<ChrColors>& test_chr_colors, const std:
     std::cout << "Testing for threshold: " << t << std::endl;
     std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, gp, t);
     GetFPFN(test_calculated_labels, actual_labels, tp, fp, tn, fn);
-    float accuracy = (tp + tn)/(tp + tn + fp + fn);
+    float accuracy = (tp + tn) * 1.0/(tp + tn + fp + fn);
     std::cout << "accuracy : " << accuracy << std::endl;
     if (accuracy > best_accuracy)
     {
