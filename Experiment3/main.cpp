@@ -17,9 +17,8 @@ int main(int argc, char **argv)
       testChromatic.emplace_back(chrom);
     }
   GaussainParams g = get_gaussian(testChromatic, labels);
-\
 
-  try_different_thresholds(TRAIN_IMAGE1_PATH, TEST_IMAGE1_PATH,g,0,3, 3/20 );
+  try_different_thresholds(TRAIN_IMAGE1_PATH, TEST_IMAGE1_PATH,g,0,3, 3.0/20 );
   return 0;
 }
 
