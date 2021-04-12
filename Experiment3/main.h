@@ -222,7 +222,6 @@ void GetFPFN(const std::vector<bool>& calculated_labels, const std::vector<bool>
       else
         ++tn;
   }
-  std::cout << "calculated:\ntp: " << tp << "\ntn: " << tn << "\nfp: " << fp << "\nfn: " << fn << std::endl; 
 }
 
 float GetBestThreshold(const std::vector<ChrColors>& test_chr_colors, const std::vector<bool>& actual_labels, const GaussianParams& gp, float thresh_min, float thresh_max, float thresh_steps)
@@ -233,11 +232,12 @@ float GetBestThreshold(const std::vector<ChrColors>& test_chr_colors, const std:
 
   for (float t = thresh_min; t < thresh_max; t += (thresh_max - thresh_min)/thresh_steps)
   {
-    std::cout << "Testing for threshold: " << t << std::endl;
+    // std::cout << "Testing for threshold: " << t << std::endl;
     std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, gp, t);
     GetFPFN(test_calculated_labels, actual_labels, tp, fp, tn, fn);
     float accuracy = (tp + tn) * 1.0/(tp + tn + fp + fn);
-    std::cout << "accuracy : " << accuracy << std::endl;
+    // std::cout << "accuracy : " << accuracy << std::endl;
+    std::cout << t << " " << accuracy << " " << tp << " " << tn << " " << fp << " " << fn << std::endl;
     if (accuracy > best_accuracy)
     {
       best_accuracy = accuracy;

@@ -21,10 +21,17 @@ int main(int argc, char **argv)
   // Classify one image
   cv::Mat test_image = cv::imread(TEST_IMAGE1_PATH);
   cv::Mat test_image_labels = cv::imread(TEST_REF1_PATH);
+  // concatenate 2nd image
+  cv::Mat test_image2 = cv::imread(TEST_IMAGE2_PATH);
+  cv::Mat test_image_labels2 = cv::imread(TEST_REF2_PATH);
+  
+  cv::hconcat(test_image, test_image2, test_image);
+  cv::hconcat(test_image_labels, test_image_labels2, test_image_labels);
+
   std::vector<bool> test_actual_labels = GetLabels(test_image_labels);
   std::vector<ChrColors> test_chr_colors = GetChrColors(test_image);
 
-  float best_threshold = GetBestThreshold(test_chr_colors, test_actual_labels, gp, 0.0, 0.5, 3);
+  float best_threshold = GetBestThreshold(test_chr_colors, test_actual_labels, gp, 0.0, gp.GetC(), 40);
   std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, gp, best_threshold);
   cv::Mat colored_image = ColorizeByLabels(test_image, test_calculated_labels);
   cv::imwrite("colored_image.png", colored_image);
