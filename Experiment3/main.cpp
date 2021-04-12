@@ -16,12 +16,17 @@ int main(int argc, char **argv)
   // Classify one image
   cv::Mat test_image = cv::imread(TEST_IMAGE1_PATH);
   cv::Mat test_image_labels = cv::imread(TEST_REF1_PATH);
-  std::vector<ChrColors> test_chr_colors = GetChrColors(test_image);
-  std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, g, 0.2);
   std::vector<bool> test_actual_labels = GetLabels(test_image_labels);
+  std::vector<ChrColors> test_chr_colors = GetChrColors(test_image);
 
-
-
+  for (float t = 0; t < 3; t += 3.0 / 20)
+  {
+    std::cout << "Testing for threshold: " << t << std::endl;
+    std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, g, t);
+    cv::Mat colored_image = ColorizeByLabels(test_image, test_calculated_labels);
+    cv::imshow("Colorized image for threshold = " + std::to_string(t), colored_image);
+    cv::waitKey(0);
+  }
 
   // //Get our gaussian
   // cv::Mat train1 = cv::imread(TRAIN_IMAGE1_PATH);

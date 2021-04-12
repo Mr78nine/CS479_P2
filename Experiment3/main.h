@@ -185,6 +185,20 @@ std::vector<bool> ClassifyChrColors(const std::vector<ChrColors>& test_chr_color
   return classifications;
 }
 
+cv::Mat ColorizeByLabels(cv::Mat& image, std::vector<bool> labels)
+{
+  cv::Mat res_image = image;
+  for (int i = 0; i < res_image.rows; ++i)
+  {
+    for (int j = 0; j < res_image.cols; ++j)
+    {
+      if (!labels[i * res_image.cols + j])
+        res_image.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255);
+    }
+  }
+  return res_image;
+}
+
 // std::vector<bool> classify(const char* trainDir, const char* testDir, float threshold, const char* fileName);
 // bool isFace(ChrColors pixel, const GaussianParams &g, float threshold);
 
