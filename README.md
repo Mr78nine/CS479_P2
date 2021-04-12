@@ -15,6 +15,8 @@ make
 ./main
 ```
 
+This will print out the results that we are interested in.
+
 # UNR CS 479 Programming Assignment 1
 
 ## Building the assignment
