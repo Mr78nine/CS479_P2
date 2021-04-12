@@ -17,22 +17,28 @@
 #define TEST_IMAGE2_PATH "../Images/Training_6.ppm"
 #define TEST_REF2_PATH "../Images/ref6.ppm"
 
-// typedef struct ChrColors {
-//     float r;
-//     float g;
-//     ChrColors(float R, float G, float B){
-//         if ((R+G+B) == 0)
-//         {
-//             r = 0;
-//             g = 0;
-//         }
-//         else
-//         {
-//             r = R / (R + G + B);
-//             g = G / (R + G + B);
-//         }
-//     }
-// }ChrColors;
+// To switch to part b, simply comment this define.
+#define part_a
+
+#ifdef part_a
+typedef struct ChrColors {
+    float r;
+    float g;
+    ChrColors(float R, float G, float B){
+        if ((R+G+B) == 0)
+        {
+            r = 0;
+            g = 0;
+        }
+        else
+        {
+            r = R / (R + G + B);
+            g = G / (R + G + B);
+        }
+    }
+}ChrColors;
+
+#else
 
 typedef struct ChrColors {
 // Replacing this itself with ycbcr
