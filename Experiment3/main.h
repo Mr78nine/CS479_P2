@@ -17,21 +17,31 @@
 #define TEST_IMAGE2_PATH "../Images/Training_6.ppm"
 #define TEST_REF2_PATH "../Images/ref6.ppm"
 
-typedef struct ChrColors {
+// typedef struct ChrColors {
+//     float r;
+//     float g;
+//     ChrColors(float R, float G, float B){
+//         if ((R+G+B) == 0)
+//         {
+//             r = 0;
+//             g = 0;
+//         }
+//         else
+//         {
+//             r = R / (R + G + B);
+//             g = G / (R + G + B);
+//         }
+//     }
+// }ChrColors;
 
-    float r;
-    float g;
+typedef struct ChrColors {
+// Replacing this itself with ycbcr
+    float r; // cb
+    float g; // cr
+
     ChrColors(float R, float G, float B){
-        if ((R+G+B) == 0)
-        {
-            r = 0;
-            g = 0;
-        }
-        else
-        {
-            r = R / (R + G + B);
-            g = G / (R + G + B);
-        }
+      r = -0.169 * R - 0.332 * G + 0.5 * B;
+      g = 0.5 * R - 0.419 * G - 0.081 * B;
     }
 }ChrColors;
 
