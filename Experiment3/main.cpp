@@ -5,20 +5,39 @@ int main(int argc, char **argv)
 {
   std::cout << "Experiment 3" << std::endl;
 
-  //Get our gaussian
-  cv::Mat train1 = cv::imread(TRAIN_IMAGE1_PATH);
-  cv::Mat test1 = cv::imread(TEST_IMAGE1_PATH);
-  std::vector<bool> labels = get_labels(TEST_IMAGE1_PATH);
-  std::vector<ChrColors> testChromatic;
+  // Create gaussian using the training data
+  cv::Mat training_image = cv::imread(TRAIN_IMAGE1_PATH);
+  cv::Mat training_image_labels = cv::imread(TRAIN_REF1_PATH);
+  std::vector<ChrColors> train_chr_colors = GetChrColors(training_image);
+  std::vector<bool> train_labels = GetLabels(training_image_labels);
+  GaussainParams g(GetFaceChrColors(train_chr_colors, train_labels));
+  g.Print();
 
-  auto testPixels = GetPixelVector(test1);
-  for (auto &pixel : testPixels) {
-      ChrColors chrom(pixel[2], pixel[1], pixel[0]);
-      testChromatic.emplace_back(chrom);
-    }
-  GaussainParams g = get_gaussian(testChromatic, labels);
+  // Classify one image
+  cv::Mat test_image = cv::imread(TEST_IMAGE1_PATH);
+  cv::Mat test_image_labels = cv::imread(TEST_REF1_PATH);
+  std::vector<ChrColors> test_chr_colors = GetChrColors(test_image);
+  std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, g, 0.2);
+  std::vector<bool> test_actual_labels = GetLabels(test_image_labels);
 
-  try_different_thresholds(TRAIN_IMAGE1_PATH, TEST_IMAGE1_PATH,g,0,3, 3.0/20 );
+
+
+
+  // //Get our gaussian
+  // cv::Mat train1 = cv::imread(TRAIN_IMAGE1_PATH);
+  // cv::Mat test1 = cv::imread(TEST_IMAGE1_PATH);
+  // std::vector<bool> labels = get_labels(TEST_IMAGE1_PATH);
+  // std::vector<ChrColors> testChromatic;
+
+  // auto testPixels = GetPixelVector(test1);
+  // for (auto &pixel : testPixels) {
+  //     ChrColors chrom(pixel[2], pixel[1], pixel[0]);
+  //     testChromatic.emplace_back(chrom);
+  //   }
+  // GaussainParams g2 = get_gaussian(testChromatic, labels);
+  // g2.print();
+
+  // try_different_thresholds(TRAIN_IMAGE1_PATH, TEST_IMAGE1_PATH,g,0,3, 3.0/20 );
   return 0;
 }
 
