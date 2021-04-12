@@ -10,8 +10,13 @@ int main(int argc, char **argv)
   cv::Mat training_image_labels = cv::imread(TRAIN_REF1_PATH);
   std::vector<ChrColors> train_chr_colors = GetChrColors(training_image);
   std::vector<bool> train_labels = GetLabels(training_image_labels);
-  GaussainParams g(GetFaceChrColors(train_chr_colors, train_labels));
-  g.Print();
+  GaussianParams gp(GetFaceChrColors(train_chr_colors, train_labels));
+  gp.Print();
+
+  // // Verify code correctness on training image
+  // cv::Mat colored_image = ColorizeByLabels(training_image, train_labels);
+  // cv::imshow("Colorized image", colored_image);
+  // cv::waitKey(0);
 
   // Classify one image
   cv::Mat test_image = cv::imread(TEST_IMAGE1_PATH);
@@ -19,14 +24,10 @@ int main(int argc, char **argv)
   std::vector<bool> test_actual_labels = GetLabels(test_image_labels);
   std::vector<ChrColors> test_chr_colors = GetChrColors(test_image);
 
-  for (float t = 0; t < 3; t += 3.0 / 20)
-  {
-    std::cout << "Testing for threshold: " << t << std::endl;
-    std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, g, t);
-    cv::Mat colored_image = ColorizeByLabels(test_image, test_calculated_labels);
-    cv::imshow("Colorized image for threshold = " + std::to_string(t), colored_image);
-    cv::waitKey(0);
-  }
+  float best_threshold = GetBestThreshold(test_chr_colors, test_actual_labels, gp, 0.0, 0.5, 3);
+  std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, gp, best_threshold);
+  cv::Mat colored_image = ColorizeByLabels(test_image, test_calculated_labels);
+  cv::imwrite("colored_image.png", colored_image);
 
   // //Get our gaussian
   // cv::Mat train1 = cv::imread(TRAIN_IMAGE1_PATH);

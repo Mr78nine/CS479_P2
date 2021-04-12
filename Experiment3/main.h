@@ -35,57 +35,64 @@ typedef struct ChrColors {
     }
 }ChrColors;
 
-typedef struct GaussainParams{
-    float r_bar;
-    float g_bar;
-    float c; //Normalizing constant
-    Eigen::Matrix2d covMatrix;
+class GaussianParams
+{
+private:
+  float r_bar;
+  float g_bar;
+  float c;
+  Eigen::Matrix2d covMatrix;
 
-    GaussainParams(const std::vector<ChrColors> & colors ) {
-
-        //Initialize Sample Means
-        r_bar = g_bar = 0.0f;
-        float r = 0, g = 0;
-        float snum = colors.size();
-        for (auto & color : colors)
-        {
-            r += color.r;
-            g += color.g;
-        }
-        r_bar = r * 1.0/snum;
-        g_bar = g * 1.0/snum;
-        //Initialize Cov Matrix
-        float covrr = 0;
-        float covrg = 0;
-        float covgg = 0;
-
-        for (auto & color : colors)
-        {
-            covrr += (color.r - r_bar) * (color.r - r_bar);
-            covrg += (color.r - r_bar) * (color.g - g_bar);
-            covgg += (color.g - g_bar) * (color.g - g_bar);
-        }
-
-        covMatrix(0,0) = covrr/(snum - 1);
-        covMatrix(0,1) = covrg/(snum - 1);
-        covMatrix(1,0) = covrg/(snum - 1);
-        covMatrix(1,1) = covgg/(snum - 1);
-
-        //Initialize c
-        auto det = covMatrix.determinant();
-        c = 1 / (2 * M_PI * sqrt(det));
-    }
-
-    void Print()
+public:
+  GaussianParams(const std::vector<ChrColors> &colors)
+  {
+    //Initialize Sample Means
+    r_bar = g_bar = 0.0f;
+    float r = 0, g = 0;
+    float snum = colors.size();
+    for (auto &color : colors)
     {
-      std::cout << "Gaussian: \nr_bar: " << r_bar << "\ng_bar: " << g_bar << "\nNormalizing Constant: " << c << "\nCovariance Matrix:\n" << covMatrix << std::endl;
+      r += color.r;
+      g += color.g;
+    }
+    r_bar = r * 1.0 / snum;
+    g_bar = g * 1.0 / snum;
+    //Initialize Cov Matrix
+    float covrr = 0;
+    float covrg = 0;
+    float covgg = 0;
+
+    for (auto &color : colors)
+    {
+      covrr += (color.r - r_bar) * (color.r - r_bar);
+      covrg += (color.r - r_bar) * (color.g - g_bar);
+      covgg += (color.g - g_bar) * (color.g - g_bar);
     }
 
-    Eigen::Vector2d GetMean()
-    {
-      return Eigen::Vector2d(r_bar, g_bar);
-    }
-}GaussianParams;
+    covMatrix(0, 0) = covrr / (snum - 1);
+    covMatrix(0, 1) = covrg / (snum - 1);
+    covMatrix(1, 0) = covrg / (snum - 1);
+    covMatrix(1, 1) = covgg / (snum - 1);
+
+    //Initialize c
+    auto det = covMatrix.determinant();
+    c = 1 / (2 * M_PI * sqrt(det));
+  }
+
+  ~GaussianParams(){}
+
+  void Print()
+  {
+    std::cout << "Gaussian: \nr_bar: " << r_bar << "\ng_bar: " << g_bar << "\nNormalizing Constant: " << c << "\nCovariance Matrix:\n"
+              << covMatrix << std::endl;
+  }
+
+  Eigen::Vector2d GetMean() const { return Eigen::Vector2d(r_bar, g_bar); }
+  const auto& GetCovMatrix() const { return covMatrix; }
+  const auto& GetRBar() const { return r_bar; }
+  const auto& GetGBar() const { return g_bar; }
+  const auto& GetC() const { return c; }
+};
 
 /**
  * @brief Get the Chr Colors object in row major format
@@ -167,20 +174,20 @@ std::vector<ChrColors> GetFaceChrColors(const std::vector<ChrColors>& image_chr_
   return face_colors;
 }
 
-bool ClassifyPixelIsFace(const ChrColors& pixel, GaussainParams& g, float threshold)
+bool ClassifyPixelIsFace(const ChrColors& pixel, const GaussianParams& gp, float threshold)
 {
   Eigen::Vector2d observation(pixel.r, pixel.g);
-  float res = g.c * exp(-0.5 * (observation - g.GetMean()).transpose() * g.covMatrix.inverse() * (observation - g.GetMean()));
+  float res = gp.GetC() * exp(-0.5 * (observation - gp.GetMean()).transpose() * gp.GetCovMatrix().inverse() * (observation - gp.GetMean()));
   return res > threshold;
 }
 
-std::vector<bool> ClassifyChrColors(const std::vector<ChrColors>& test_chr_colors, GaussainParams& g, float threshold)
+std::vector<bool> ClassifyChrColors(const std::vector<ChrColors>& test_chr_colors, const GaussianParams& gp, float threshold)
 {
   std::vector<bool> classifications;
   classifications.reserve(test_chr_colors.size());
   for (auto& color: test_chr_colors)
   {
-    classifications.push_back(ClassifyPixelIsFace(color, g, threshold));
+    classifications.push_back(ClassifyPixelIsFace(color, gp, threshold));
   }
   return classifications;
 }
@@ -197,6 +204,50 @@ cv::Mat ColorizeByLabels(cv::Mat& image, std::vector<bool> labels)
     }
   }
   return res_image;
+}
+
+void GetFPFN(const std::vector<bool>& calculated_labels, const std::vector<bool>& actual_labels, int& tp, int& fp, int& tn, int& fn)
+{
+  tp = tn = fp = fn = 0;
+  for (int i = 0; i < calculated_labels.size(); ++i)
+  {
+    if (calculated_labels[i])
+      if (actual_labels[i])
+        ++tp;
+      else
+        ++fp;
+    else
+      if (actual_labels[i])
+        ++fn;
+      else
+        ++tn;
+  }
+  std::cout << "calculated:\ntp: " << tp << "\ntn: " << tn << "\nfp: " << fp << "\nfn: " << fn << std::endl; 
+}
+
+float GetBestThreshold(const std::vector<ChrColors>& test_chr_colors, const std::vector<bool>& actual_labels, const GaussianParams& gp, float thresh_min, float thresh_max, float thresh_steps)
+{
+  float best_accuracy = 0;
+  float best_threshold = 0;
+  int tp, tn, fp, fn, best_fp, best_fn;
+
+  for (float t = thresh_min; t < thresh_max; t += (thresh_max - thresh_min)/thresh_steps)
+  {
+    std::cout << "Testing for threshold: " << t << std::endl;
+    std::vector<bool> test_calculated_labels = ClassifyChrColors(test_chr_colors, gp, t);
+    GetFPFN(test_calculated_labels, actual_labels, tp, fp, tn, fn);
+    float accuracy = (tp + tn)/(tp + tn + fp + fn);
+    std::cout << "accuracy : " << accuracy << std::endl;
+    if (accuracy > best_accuracy)
+    {
+      best_accuracy = accuracy;
+      best_threshold = t;
+      best_fp = fp;
+      best_fn = fn;
+    }
+  }
+  std::cout << "Best accuracy of " << best_accuracy << " got at threshold: " << best_threshold << std::endl;
+  return best_threshold;
 }
 
 // std::vector<bool> classify(const char* trainDir, const char* testDir, float threshold, const char* fileName);
